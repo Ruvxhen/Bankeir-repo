@@ -1,98 +1,238 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
-
+//Importar funciones de: Visualizar, texto, hoja de diseño, imagen, ingresar ttexto y ocapacidad
+import { useRef, useState } from "react"; //animación y useRef
+import { Animated, Dimensions, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+//----------------------------------------------
+//HomeScreen: Pantalla principal
+//export default: exportar una entidad principal
+//function: ps función
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Maxiii</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  //el ancho de la pantalla
+  const screenWidth = Dimensions.get("window").width;
+  //useRef: evita re-renderizados innecesarios
+  //.current: recupera el valor de la referencia
+  const menuX = useRef(new Animated.Value(240)).current;
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  //useState: añade estado a un componente funcional
+  const [open, setOpen] = useState(false);
+
+  //P A N T A L L A S   P A R A   L A S   C A T E G O R Í A S (del menú)-----
+  const [currentScreen, setCurrentScreen] = useState("Home");
+
+  // Estado para simular datos (luego esto vendrá de una base de datos ---
+  const [transactions, setTransactions] = useState([
+    { id: 1, titulo: "Compra Tienda", monto: -50, fecha: "06/Ene/2026", categoria: "NU", color: "#b5aed4" },
+    { id: 2, titulo: "Transferencia", monto: 200, fecha: "07/Ene/2026", categoria: "BBVA", color: "#a0c4ff" },
+  ]);
+
+  //A N I M A C I Ó N --------------------------------------
+  const toggleMenu = () => {
+    Animated.timing(menuX, {
+      toValue: open ? 240 : 0,
+      duration: 300,
+      useNativeDriver: true, //mejora la fluidez
+    }).start();
+    setOpen(!open);
+  };
+
+
+  return (
+    <View style={styles.container}>
+      {/* Banner */}
+      <View style={styles.banner}>
+        <View style={styles.headerRow}>
+
+          {/* LÓGICA DE REEMPLAZO: Si es Home muestra perfil, si no, el Título de la categoría */}
+          <View style={styles.leftRow}>
+            {currentScreen === "Home" ? (
+              <>
+              
+                <TouchableOpacity onPress={() => console.log("Ir al login")}>
+                  <Image
+                    source={{ uri: "https://via.placeholder.com/100" }}
+                    style={styles.avatar}
+                  />
+                </TouchableOpacity>
+
+                <Text style={styles.title}>Bankeir</Text>
+              </>
+            ) : (
+              <Text style={styles.categoryTitle}>{currentScreen}</Text>
+            )}
+          </View>
+
+          {/* BOTÓN PRINCIPAL (Siempre a la derecha) */}
+          <TouchableOpacity onPress={toggleMenu}>
+            <Text style={styles.menuText}>☰</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Buscador: Siempre abajo del header, pero arriba del contenido */}
+        <TextInput
+          placeholder={`  Buscar en ${currentScreen}...`}
+          placeholderTextColor="#aaa"
+          style={styles.search}
+        />
+      </View>
+      
+
+      {/* 2. Contenido Dinámico */}
+      <View style={{ flex: 1, backgroundColor: 'black' }}>
+        {currentScreen === "Home" ? (
+          <View style={{ padding: 20 }}>
+            <Text style={{ color: "white", fontSize: 18 }}>
+              Faltan los rectángulitozzz
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>Vacío todavía ekisde</Text>
+          </View>
+        )}
+      </View>
+
+      {/* MENÚ ANIMADO */}
+      <Animated.View
+        style={[
+          styles.sideMenu,
+          { transform: [{ translateX: menuX }] }
+        ]}
+      >
+
+        {/* BOTÓN DE CERRAR */}
+        <TouchableOpacity style={styles.closeBtn} onPress={toggleMenu}>
+          <Text style={styles.closeText}>☰</Text>
+        </TouchableOpacity>
+
+        {/* CATEGORÍAS */}
+        <TouchableOpacity onPress={() => { setCurrentScreen("Home"); toggleMenu(); }}>
+          <Text style={styles.item}>Inicio</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => { setCurrentScreen("Metas"); toggleMenu(); }}>
+          <Text style={styles.item}>Metas</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => { setCurrentScreen("Futuros Gastos"); toggleMenu(); }}>
+          <Text style={styles.item}>Futuros Gastos</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => { setCurrentScreen("Archivados"); toggleMenu(); }}>
+          <Text style={styles.item}>Archivados</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => { setCurrentScreen("Papelera"); toggleMenu(); }}>
+          <Text style={styles.item}>Papelera</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => { setCurrentScreen("Reporte"); toggleMenu(); }}>
+          <Text style={styles.item}>Reporte</Text>
+        </TouchableOpacity>
+
+      </Animated.View>
+    </View>
   );
 }
 
+// C O N T E N E D O R   D E   E S T I L O ------------
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: 'black',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+
+  //Menu lateral
+  closeBtn: {
+    alignSelf: "flex-end",
+    marginBottom: 10,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+
+  closeText: {
+    fontSize: 40,
+    color: "white",
+  },
+
+  sideMenu: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    width: 240,
+    height: "100%",
+    backgroundColor: "#34363d",
+    paddingTop: 60,
+    paddingHorizontal: 20,
+    elevation: 10,
+    zIndex: 100,
+  },
+
+  item: {
+    fontSize: 18,
+    marginBottom: 20,
+    color: "#ffffff",
+  },
+
+  // B A N N E R -------------------------------
+  banner: {
+    backgroundColor: "#1a1a1a",
+    paddingHorizontal: 16,
+    paddingTop: 20, // Ajustado para dar espacio a la barra de estado
+    paddingBottom: 16,
+  },
+
+  menuText: {
+    fontSize: 35,
+    color: "white",
+  },
+
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 15,
+  },
+
+  leftRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+    backgroundColor: "#838383",
+  },
+
+  title: {
+    fontSize: 22,
+    color: "white",
+    fontWeight: "bold",
+  },
+
+  // Estilo para el nombre de la categoría cuando reemplaza al logo
+  categoryTitle: {
+    fontSize: 26,
+    color: "white",
+    fontWeight: "bold",
+    paddingInlineStart: 10,
+  },
+
+  search: {
+    backgroundColor: "#2e2e2e",
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    height: 40,
+    color: "#ffffff",
+  },
+
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyText: {
+    color: "white",
+    fontSize: 24,
+    fontWeight: "bold",
   },
 });
